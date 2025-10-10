@@ -143,15 +143,68 @@ def load_and_engineer_features(config: dict,
     for col in train_df.columns:
         if col == 'TARGET':
             continue
-        if train_df[col].dtype in ['float32', 'float64', 'int32', 'int64']:
+        
+        col_dtype = str(train_df[col].dtype)
+        
+        # Handle numeric columns
+        if train_df[col].dtype in ['float32', 'float64', 'int32', 'int64', 'float', 'int']:
             # Fill with median
             median_val = train_df[col].median()
             train_df[col] = train_df[col].fillna(median_val)
             test_df[col] = test_df[col].fillna(median_val)
-        else:
-            # Fill with mode or 'missing'
+        
+        # Handle categorical columns
+        elif 'category' in col_dtype:
+            # Add 'missing' to categories first
+            if 'missing' not in train_df[col].cat.categories:
+                train_df[col] = train_df[col].cat.add_categories(['missing'])
+            if 'missing' not in test_df[col].cat.categories:
+                test_df[col] = test_df[col].cat.add_categories(['missing'])
+            
+            # Now fill with 'missing'
             train_df[col] = train_df[col].fillna('missing')
             test_df[col] = test_df[col].fillna('missing')
+        
+        # Handle object/string columns
+        else:
+            # Fill with mode or 'missing'
+            if train_df[col].notna().sum() > 0:
+                mode_val = train_df[col].mode()
+                fill_val = mode_val[0] if len(mode_val) > 0 else 'missing'
+            else:
+                fill_val = 'missing'
+            
+            train_df[col] = train_df[col].fillna(fill_val)
+            test_df[col] = test_df[col].fillna(fill_val)
+    
+    # ===== ENCODE CATEGORICAL VARIABLES =====
+    logger.info("\n🔢 Encoding categorical variables...")
+    
+    # Identify object/categorical columns
+    categorical_cols = []
+    for col in train_df.columns:
+        if col == 'TARGET':
+            continue
+        if train_df[col].dtype == 'object' or str(train_df[col].dtype) == 'category':
+            categorical_cols.append(col)
+    
+    logger.info(f"Found {len(categorical_cols)} categorical columns to encode")
+    
+    # Label encode categorical variables
+    from sklearn.preprocessing import LabelEncoder
+    
+    for col in categorical_cols:
+        le = LabelEncoder()
+        
+        # Combine train and test to ensure consistent encoding
+        combined = pd.concat([train_df[col], test_df[col]], axis=0)
+        le.fit(combined.astype(str))
+        
+        # Transform both sets
+        train_df[col] = le.transform(train_df[col].astype(str))
+        test_df[col] = le.transform(test_df[col].astype(str))
+    
+    logger.info(f"✓ Encoded {len(categorical_cols)} categorical columns")
     
     # Get feature names
     feature_names = [col for col in train_df.columns if col != 'TARGET']
