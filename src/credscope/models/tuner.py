@@ -72,13 +72,14 @@ class LightGBMTuner:
         val_data = lgb.Dataset(self.X_val, label=self.y_val, reference=train_data)
         
         # Train with early stopping
+        # Note: Optuna's LightGBMPruningCallback expects validation set named 'valid_0'
         pruning_callback = optuna.integration.LightGBMPruningCallback(trial, 'auc')
         
         model = lgb.train(
             params,
             train_data,
             valid_sets=[val_data],
-            valid_names=['valid'],
+            valid_names=['valid_0'],  # Must be 'valid_0' for Optuna pruning callback
             callbacks=[
                 lgb.early_stopping(stopping_rounds=50),
                 pruning_callback
