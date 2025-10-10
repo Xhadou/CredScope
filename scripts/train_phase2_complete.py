@@ -212,6 +212,10 @@ def load_and_engineer_features_complete(config: dict, use_cached: bool = False) 
             train_df[col] = train_df[col].fillna(median_val)
             test_df[col] = test_df[col].fillna(median_val)
         else:
+            # Handle categorical columns - convert to string first
+            if train_df[col].dtype.name == 'category':
+                train_df[col] = train_df[col].astype(str)
+                test_df[col] = test_df[col].astype(str)
             train_df[col] = train_df[col].fillna('missing')
             test_df[col] = test_df[col].fillna('missing')
     
