@@ -25,13 +25,12 @@ import gc
 warnings.filterwarnings('ignore')
 
 # ML libraries
-from sklearn.model_selection import train_test_split, StratifiedKFold
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
 from sklearn.linear_model import LogisticRegression
 import lightgbm as lgb
 import xgboost as xgb
 import optuna
-from optuna.integration import LightGBMPruningCallback, XGBoostPruningCallback
 import mlflow
 
 # Try to import CatBoost (optional)
@@ -184,8 +183,7 @@ def optimize_lightgbm(X_train, y_train, X_val, y_val, n_trials=150):
         train_data = lgb.Dataset(X_train, label=y_train)
         val_data = lgb.Dataset(X_val, label=y_val, reference=train_data)
         
-        # Train with early stopping
-        pruning_callback = LightGBMPruningCallback(trial, "valid_0-auc")
+        # Train with early stopping (no pruning callback to avoid metric name issues)
         model = lgb.train(
             params,
             train_data,
@@ -194,8 +192,7 @@ def optimize_lightgbm(X_train, y_train, X_val, y_val, n_trials=150):
             valid_names=['valid_0'],
             callbacks=[
                 lgb.early_stopping(stopping_rounds=50),
-                lgb.log_evaluation(0),  # Suppress output
-                pruning_callback
+                lgb.log_evaluation(0)  # Suppress output
             ]
         )
         
@@ -294,16 +291,14 @@ def optimize_xgboost(X_train, y_train, X_val, y_val, n_trials=150):
         dtrain = xgb.DMatrix(X_train, label=y_train)
         dval = xgb.DMatrix(X_val, label=y_val)
         
-        # Train with early stopping
-        pruning_callback = XGBoostPruningCallback(trial, "validation-auc")
+        # Train with early stopping (no pruning callback to avoid issues)
         model = xgb.train(
             params,
             dtrain,
             num_boost_round=2000,
             evals=[(dval, 'validation')],
             early_stopping_rounds=50,
-            verbose_eval=False,
-            callbacks=[pruning_callback]
+            verbose_eval=False
         )
         
         # Get validation score
