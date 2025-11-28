@@ -112,7 +112,7 @@ class TestPrediction:
         predictor = CreditRiskPredictor(models_dir="models")
 
         # Skip if models not available
-        if not (Path("models") / "lightgbm_phase3_optimized.txt").exists():
+        if not (Path("models") / "lightgbm_model.txt").exists():
             pytest.skip("Models not available")
 
         predictor.load_models()
@@ -154,7 +154,7 @@ class TestModelLoading:
 
     def test_load_models_with_existing_files(self):
         """Test loading models when files exist"""
-        if not (Path("models") / "lightgbm_phase3_optimized.txt").exists():
+        if not (Path("models") / "lightgbm_model.txt").exists():
             pytest.skip("Models not available")
 
         predictor = CreditRiskPredictor(models_dir="models")

@@ -21,6 +21,6 @@ def models_dir():
 @pytest.fixture(scope="session")
 def models_available(models_dir):
     """Check if models are available"""
-    lgb_path = models_dir / "lightgbm_phase3_optimized.txt"
-    xgb_path = models_dir / "xgboost_phase3_optimized.json"
+    lgb_path = models_dir / "lightgbm_model.txt"
+    xgb_path = models_dir / "xgboost_model.json"
     return lgb_path.exists() and xgb_path.exists()

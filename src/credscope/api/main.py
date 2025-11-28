@@ -43,23 +43,67 @@ app.add_middleware(
 class ApplicantInput(BaseModel):
     """Input model for loan applicant data"""
 
-    # Basic information
-    AMT_INCOME_TOTAL: float = Field(..., description="Total income of applicant", gt=0)
+    # === REQUIRED FIELDS ===
+    AMT_INCOME_TOTAL: float = Field(..., description="Total annual income of applicant", gt=0)
     AMT_CREDIT: float = Field(..., description="Credit amount of the loan", gt=0)
-    AMT_ANNUITY: Optional[float] = Field(None, description="Loan annuity", ge=0)
-    AMT_GOODS_PRICE: Optional[float] = Field(None, description="Price of goods", ge=0)
-
-    # Demographic
     DAYS_BIRTH: int = Field(..., description="Age in days (negative value)", lt=0)
-    DAYS_EMPLOYED: Optional[int] = Field(None, description="Employment duration in days")
-    CODE_GENDER: Optional[int] = Field(0, description="Gender code (0=F, 1=M)")
 
-    # External scores
-    EXT_SOURCE_1: Optional[float] = Field(None, description="External data source 1", ge=0, le=1)
-    EXT_SOURCE_2: Optional[float] = Field(None, description="External data source 2", ge=0, le=1)
-    EXT_SOURCE_3: Optional[float] = Field(None, description="External data source 3", ge=0, le=1)
+    # === CREDIT DETAILS ===
+    AMT_ANNUITY: Optional[float] = Field(None, description="Loan annuity payment", ge=0)
+    AMT_GOODS_PRICE: Optional[float] = Field(None, description="Price of goods for consumer loans", ge=0)
+    NAME_CONTRACT_TYPE: Optional[str] = Field("Cash loans", description="Contract type: Cash loans or Revolving loans")
 
-    # Additional features (optional - will be filled with defaults if missing)
+    # === PERSONAL INFO ===
+    CODE_GENDER: Optional[int] = Field(0, description="Gender code (0=Female, 1=Male)", ge=0, le=1)
+    CNT_CHILDREN: Optional[int] = Field(0, description="Number of children", ge=0)
+    CNT_FAM_MEMBERS: Optional[float] = Field(2.0, description="Number of family members", ge=1)
+    NAME_FAMILY_STATUS: Optional[str] = Field("Married", description="Family status")
+
+    # === EDUCATION ===
+    NAME_EDUCATION_TYPE: Optional[str] = Field(
+        "Secondary / secondary special", 
+        description="Education level: Lower secondary, Secondary / secondary special, Incomplete higher, Higher education, Academic degree"
+    )
+
+    # === HOUSING & ASSETS ===
+    NAME_HOUSING_TYPE: Optional[str] = Field(
+        "House / apartment",
+        description="Housing type: House / apartment, Rented apartment, With parents, Municipal apartment, Office apartment, Co-op apartment"
+    )
+    FLAG_OWN_CAR: Optional[str] = Field("N", description="Owns a car: Y or N")
+    FLAG_OWN_REALTY: Optional[str] = Field("Y", description="Owns real estate: Y or N")
+    OWN_CAR_AGE: Optional[float] = Field(None, description="Age of car in years if owned")
+
+    # === EMPLOYMENT ===
+    DAYS_EMPLOYED: Optional[int] = Field(None, description="Employment duration in days (negative if employed)")
+    NAME_INCOME_TYPE: Optional[str] = Field(
+        "Working",
+        description="Income type: Working, Commercial associate, Pensioner, State servant, Student, Unemployed"
+    )
+    OCCUPATION_TYPE: Optional[str] = Field(None, description="Occupation type")
+    ORGANIZATION_TYPE: Optional[str] = Field(None, description="Organization type of employer")
+
+    # === CONTACT INFO ===
+    FLAG_MOBIL: Optional[int] = Field(1, description="Has mobile phone: 0 or 1", ge=0, le=1)
+    FLAG_PHONE: Optional[int] = Field(0, description="Has home phone: 0 or 1", ge=0, le=1)
+    FLAG_EMAIL: Optional[int] = Field(0, description="Has email: 0 or 1", ge=0, le=1)
+    FLAG_WORK_PHONE: Optional[int] = Field(0, description="Has work phone: 0 or 1", ge=0, le=1)
+
+    # === EXTERNAL CREDIT SCORES (Most Important Features) ===
+    EXT_SOURCE_1: Optional[float] = Field(None, description="External credit score 1 (normalized 0-1)", ge=0, le=1)
+    EXT_SOURCE_2: Optional[float] = Field(None, description="External credit score 2 (normalized 0-1)", ge=0, le=1)
+    EXT_SOURCE_3: Optional[float] = Field(None, description="External credit score 3 (normalized 0-1)", ge=0, le=1)
+
+    # === REGION & ADDRESS ===
+    REGION_POPULATION_RELATIVE: Optional[float] = Field(None, description="Normalized population of region", ge=0, le=1)
+    REGION_RATING_CLIENT: Optional[int] = Field(None, description="Region rating (1-3)", ge=1, le=3)
+
+    # === DOCUMENT FLAGS ===
+    FLAG_DOCUMENT_3: Optional[int] = Field(1, description="Provided document 3: 0 or 1", ge=0, le=1)
+    FLAG_DOCUMENT_6: Optional[int] = Field(0, description="Provided document 6: 0 or 1", ge=0, le=1)
+    FLAG_DOCUMENT_8: Optional[int] = Field(0, description="Provided document 8: 0 or 1", ge=0, le=1)
+
+    # Additional features (optional - for advanced users)
     additional_features: Optional[Dict[str, float]] = Field(
         default_factory=dict,
         description="Additional engineered features from bureau, installments, etc."
@@ -75,13 +119,16 @@ class ApplicantInput(BaseModel):
                 "DAYS_BIRTH": -15000,
                 "DAYS_EMPLOYED": -3000,
                 "CODE_GENDER": 1,
+                "CNT_CHILDREN": 0,
+                "CNT_FAM_MEMBERS": 2,
+                "NAME_EDUCATION_TYPE": "Higher education",
+                "NAME_HOUSING_TYPE": "House / apartment",
+                "NAME_INCOME_TYPE": "Working",
+                "FLAG_OWN_CAR": "Y",
+                "FLAG_OWN_REALTY": "Y",
                 "EXT_SOURCE_1": 0.65,
                 "EXT_SOURCE_2": 0.72,
-                "EXT_SOURCE_3": 0.58,
-                "additional_features": {
-                    "BUREAU_DEBT_CREDIT_RATIO": 0.45,
-                    "INST_RECENT_INST_PAYMENT_RATIO": 0.95
-                }
+                "EXT_SOURCE_3": 0.58
             }
         }
 
