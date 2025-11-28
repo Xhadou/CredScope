@@ -745,41 +745,20 @@ flowchart TB
 
 ## Future Roadmap
 
-### Q1 2026
+### Phase-1
 
 - **Neural Networks:** TabNet integration, SAINT architecture
 - **Monitoring:** Real-time drift dashboard, Prometheus and Grafana
 
-### Q2-Q3 2026
+### Phase-2
 
 - **Alternative Data:** Telco data integration, Utility payment history
 - **Infrastructure:** Multi-region deployment, AutoML pipeline, A/B testing framework
 
-### 2027
+### Phase-3
 
 - **Advanced ML:** Graph Neural Networks, Federated learning
 - **LLM Integration:** Natural language explanations, Automated report generation
-
-```mermaid
-gantt
-    title CredScope Development Roadmap
-    dateFormat  YYYY-MM
-    section Neural Networks
-    TabNet Integration       :2026-01, 2026-03
-    SAINT Architecture       :2026-02, 2026-04
-    section Monitoring
-    Drift Dashboard          :2026-01, 2026-03
-    Prometheus Setup         :2026-02, 2026-03
-    section Alternative Data
-    Telco Integration        :2026-04, 2026-06
-    Utility Data             :2026-05, 2026-07
-    section Infrastructure
-    Multi-region Deploy      :2026-04, 2026-09
-    AutoML Pipeline          :2026-06, 2026-09
-    section Advanced ML
-    Graph Neural Networks    :2027-01, 2027-06
-    Federated Learning       :2027-03, 2027-09
-```
 
 ---
 
