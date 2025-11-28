@@ -2,14 +2,14 @@
 venv/
 env/
 
-# Data files
-data/raw/*
+# Data files (now tracked via Git LFS)
+# data/raw/*
 data/processed/*
 data/features/*
 !data/*/.gitkeep
 
-# Models
-models/*.pkl
+# Models (large models tracked via Git LFS)
+# models/*.pkl
 models/*.joblib
 
 # MLflow
